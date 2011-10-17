@@ -370,10 +370,12 @@ int sdio_cmux_close(int id)
 
 	ch = &logical_ch[id];
 	mutex_lock(&ch->lc_lock);
+	ch->receive_cb = NULL;
+	mutex_lock(&ch->tx_lock);
+	ch->write_done = NULL;
+	mutex_unlock(&ch->tx_lock);
 	ch->is_local_open = 0;
 	ch->priv = NULL;
-	ch->receive_cb = NULL;
-	ch->write_done = NULL;
 	mutex_unlock(&ch->lc_lock);
 	sdio_cmux_write_cmd(ch->lc_id, CLOSE);
 /* ++SSD_RIL: Mars_Lin@20110628: Add more log for debug */
