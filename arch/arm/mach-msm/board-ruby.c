@@ -198,10 +198,6 @@ extern int panel_type;
 
 #define MSM_SHARED_RAM_PHYS 0x40000000
 
-#ifdef CONFIG_PERFLOCK
-#include <mach/perflock.h>
-#endif
-
 /*
  * The UI_INTx_N lines are pmic gpio lines which connect i2c
  * gpio expanders to the pm8058.
@@ -220,10 +216,6 @@ extern int panel_type;
 #ifdef CONFIG_FB_MSM_HDMI_MHL
 extern void sii9234_change_usb_owner(bool bMHL);
 #endif //CONFIG_FB_MSM_HDMI_MHL
-
-#ifdef CONFIG_PERFLOCK
-extern unsigned int get_max_cpu_freq(void);
-#endif
 
 #ifdef CONFIG_MMC_MSM_SDC2_SUPPORT
 static void (*sdc2_status_notify_cb)(int card_present, void *dev_id);
@@ -358,21 +350,6 @@ static struct msm_spm_platform_data msm_spm_data[] __initdata = {
 static struct msm_acpu_clock_platform_data msm8x60_acpu_clock_data = {
 };
 
-#ifdef CONFIG_PERFLOCK
-static unsigned ruby_perf_acpu_table_1188k[] = {
-        384000000,
-        756000000,
-        1188000000,
-};
-static unsigned ruby_perf_acpu_table_1512k[] = {
-	540000000,
-	1026000000,
-	1512000000,
-};
-
-static struct perflock_platform_data ruby_perflock_data;
-#endif
-
 static struct regulator_consumer_supply saw_s0_supply =
 	REGULATOR_SUPPLY("8901_s0", NULL);
 static struct regulator_consumer_supply saw_s1_supply =
@@ -381,8 +358,8 @@ static struct regulator_consumer_supply saw_s1_supply =
 static struct regulator_init_data saw_s0_init_data = {
 		.constraints = {
 			.valid_ops_mask = REGULATOR_CHANGE_VOLTAGE,
-			.min_uV = 840000,
-			.max_uV = 1250000,
+			.min_uV = 800000,
+			.max_uV = 1350000,
 		},
 		.num_consumer_supplies = 1,
 		.consumer_supplies = &saw_s0_supply,
@@ -391,8 +368,8 @@ static struct regulator_init_data saw_s0_init_data = {
 static struct regulator_init_data saw_s1_init_data = {
 		.constraints = {
 			.valid_ops_mask = REGULATOR_CHANGE_VOLTAGE,
-			.min_uV = 840000,
-			.max_uV = 1250000,
+			.min_uV = 800000,
+			.max_uV = 1350000,
 		},
 		.num_consumer_supplies = 1,
 		.consumer_supplies = &saw_s1_supply,
@@ -2351,9 +2328,9 @@ static struct rpm_vreg_pdata rpm_vreg_init_pdata[RPM_VREG_ID_MAX] = {
 	RPM_VREG_INIT_LDO(PM8058_L24, 0, 1, 0, 1200000, 1200000, LDO150HMIN, 0),
 	RPM_VREG_INIT_LDO(PM8058_L25, 0, 1, 0, 1200000, 1200000, LDO150HMIN, 0),
 
-	RPM_VREG_INIT_SMPS(PM8058_S0, 0, 1, 1, 500000, 1250000, SMPS_HMIN, 0,
+	RPM_VREG_INIT_SMPS(PM8058_S0, 0, 1, 1, 500000, 1350000, SMPS_HMIN, 0,
 		RPM_VREG_FREQ_1p92),
-	RPM_VREG_INIT_SMPS(PM8058_S1, 0, 1, 1, 500000, 1250000, SMPS_HMIN, 0,
+	RPM_VREG_INIT_SMPS(PM8058_S1, 0, 1, 1, 500000, 1350000, SMPS_HMIN, 0,
 		RPM_VREG_FREQ_1p92),
 	RPM_VREG_INIT_SMPS(PM8058_S2, 0, 1, 0, 1200000, 1400000, SMPS_HMIN,
 		RPM_VREG_PIN_CTRL_A0, RPM_VREG_FREQ_1p92),
@@ -5816,18 +5793,6 @@ static void __init ruby_init(void)
 	platform_add_devices(early_devices, ARRAY_SIZE(early_devices));
 	/* CPU frequency control is not supported on simulated targets. */
 	msm_acpu_clock_init(&msm8x60_acpu_clock_data);
-
-#ifdef CONFIG_PERFLOCK
-	if (ruby_perf_acpu_table_1188k[PERF_LOCK_HIGHEST] == get_max_cpu_freq() * 1000 ) {
-		ruby_perflock_data.perf_acpu_table = ruby_perf_acpu_table_1188k;
-		ruby_perflock_data.table_size = ARRAY_SIZE(ruby_perf_acpu_table_1188k);
-	}
-	else {
-		ruby_perflock_data.perf_acpu_table = ruby_perf_acpu_table_1512k;
-		ruby_perflock_data.table_size = ARRAY_SIZE(ruby_perf_acpu_table_1512k);
-	}
-        perflock_init(&ruby_perflock_data);
-#endif
 
 	msm8x60_init_tlmm();
 	msm8x60_init_gpiomux(msm8x60_htc_gpiomux_cfgs);

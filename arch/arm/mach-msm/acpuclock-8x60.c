@@ -52,10 +52,10 @@
  * The PLL hardware is capable of 384MHz to 1536MHz. The L_VALs
  * used for calibration should respect these limits. */
 #define L_VAL_SCPLL_CAL_MIN	0x08 /* =  432 MHz with 27MHz source */
-#define L_VAL_SCPLL_CAL_MAX	0x1C /* = 1512 MHz with 27MHz source */
+#define L_VAL_SCPLL_CAL_MAX	0x1D /* = 1566 MHz with 27MHz source */
 
-#define MAX_VDD_SC		1250000 /* uV */
-#define MIN_VDD_SC		 812500 /* uV */
+#define MAX_VDD_SC		1350000 /* uV */
+#define MIN_VDD_SC		 800000 /* uV */
 #define MAX_AXI			 310500 /* KHz */
 #define SCPLL_LOW_VDD_FMAX	 594000 /* KHz */
 #ifdef CONFIG_ARCH_MSM8X60_LTE
@@ -95,6 +95,9 @@
 
 /* Speed bin register. */
 #define QFPROM_SPEED_BIN_ADDR		(MSM_QFPROM_BASE + 0x00C0)
+
+/* frequency defaults */
+#define FREQ_TABLE_SIZE		34
 
 static const void * const clk_ctl_addr[] = {SPSS0_CLK_CTL_ADDR,
 			SPSS1_CLK_CTL_ADDR};
@@ -172,6 +175,9 @@ static struct msm_bus_paths bw_level_tbl[] = {
 	[1] = BW_MBPS(1336), /* At least 167 MHz on bus. */
 	[2] = BW_MBPS(2008), /* At least 251 MHz on bus. */
 	[3] = BW_MBPS(2480), /* At least 310 MHz on bus. */
+#ifdef CONFIG_BOOST_L2_BANDWIDTH
+	[4] = BW_MBPS(3200), /* At least 360 MHz on bus. */
+#endif
 };
 
 static struct msm_bus_scale_pdata bus_client_pdata = {
@@ -201,7 +207,20 @@ static struct clkctl_l2_speed l2_freq_tbl_v2[] = {
 	[13] = {1080000,  1, 0x14, 1100000, 1200000, 2},
 	[14] = {1134000,  1, 0x15, 1100000, 1200000, 2},
 	[15] = {1188000,  1, 0x16, 1200000, 1200000, 3},
-	[16] = {1404000,  1, 0x1A, 1200000, 1250000, 3},
+ 	[16] = {1242000,  1, 0x17, 1200000, 1212500, 3},
+ 	[17] = {1296000,  1, 0x18, 1200000, 1225000, 3},
+ 	[18] = {1350000,  1, 0x19, 1200000, 1225000, 3},
+#ifndef CONFIG_BOOST_L2_BANDWIDTH
+ 	[19] = {1404000,  1, 0x1A, 1200000, 1250000, 3},
+	[20] = {1458000,  1, 0x1B, 1225000, 1250000, 3},
+	[21] = {1512000,  1, 0x1C, 1225000, 1262500, 3},
+	[22] = {1566000,  1, 0x1D, 1225000, 1262500, 3},
+#else
+	[19] = {1404000,  1, 0x1A, 1200000, 1250000, 4},
+	[20] = {1458000,  1, 0x1B, 1225000, 1250000, 4},
+	[21] = {1512000,  1, 0x1C, 1225000, 1262500, 4},
+	[22] = {1566000,  1, 0x1D, 1225000, 1262500, 4},
+#endif
 };
 
 #define L2(x) (&l2_freq_tbl_v2[(x)])
@@ -222,11 +241,28 @@ static struct clkctl_acpu_speed acpu_freq_tbl_v2[] = {
   { {1, 1},  864000,  ACPU_SCPLL, 0, 0, 1, 0x10, L2(9),  1037500, 0x03006000},
   { {1, 1},  918000,  ACPU_SCPLL, 0, 0, 1, 0x11, L2(10), 1062500, 0x03006000},
   { {1, 1},  972000,  ACPU_SCPLL, 0, 0, 1, 0x12, L2(11), 1087500, 0x03006000},
-  { {1, 1}, 1026000,  ACPU_SCPLL, 0, 0, 1, 0x13, L2(12), 1125000, 0x03006000},
-  { {1, 1}, 1080000,  ACPU_SCPLL, 0, 0, 1, 0x14, L2(13), 1137500, 0x03006000},
-  { {1, 1}, 1134000,  ACPU_SCPLL, 0, 0, 1, 0x15, L2(14), 1162500, 0x03006000},
-  { {1, 1}, 1188000,  ACPU_SCPLL, 0, 0, 1, 0x16, L2(15), 1187500, 0x03006000},
-  { {1, 1}, 1512000,  ACPU_SCPLL, 0, 0, 1, 0x1C, L2(16), 1250000, 0x03006000},
+  { {1, 1}, 1026000,  ACPU_SCPLL, 0, 0, 1, 0x13, L2(12), 1100000, 0x03006000},
+  { {1, 1}, 1080000,  ACPU_SCPLL, 0, 0, 1, 0x14, L2(13), 1112500, 0x03006000},
+  { {1, 1}, 1134000,  ACPU_SCPLL, 0, 0, 1, 0x15, L2(14), 1125000, 0x03006000},
+  { {1, 1}, 1188000,  ACPU_SCPLL, 0, 0, 1, 0x16, L2(15), 1137500, 0x03006000},
+  { {1, 1}, 1242000,  ACPU_SCPLL, 0, 0, 1, 0x17, L2(16), 1150000, 0x03006000},
+  { {1, 1}, 1296000,  ACPU_SCPLL, 0, 0, 1, 0x18, L2(17), 1175000, 0x03006000},
+  { {1, 1}, 1350000,  ACPU_SCPLL, 0, 0, 1, 0x19, L2(18), 1200000, 0x03006000},
+  { {1, 1}, 1404000,  ACPU_SCPLL, 0, 0, 1, 0x1A, L2(19), 1225000, 0x03006000},
+#ifndef CONFIG_BOOST_L2_BANDWIDTH
+  { {1, 1}, 1458000,  ACPU_SCPLL, 0, 0, 1, 0x1B, L2(19), 1237500, 0x03006000},
+  { {1, 1}, 1512000,  ACPU_SCPLL, 0, 0, 1, 0x1C, L2(19), 1250000, 0x03006000},
+  { {1, 1}, 1566000,  ACPU_SCPLL, 0, 0, 1, 0x1D, L2(19), 1262500, 0x03006000},
+#else
+  { {1, 1}, 1458000,  ACPU_SCPLL, 0, 0, 1, 0x1B, L2(20), 1237500, 0x03006000},
+  { {1, 1}, 1512000,  ACPU_SCPLL, 0, 0, 1, 0x1C, L2(21), 1250000, 0x03006000},
+  { {1, 1}, 1566000,  ACPU_SCPLL, 0, 0, 1, 0x1D, L2(22), 1262500, 0x03006000},
+#endif
+#ifdef CONFIG_CPU_OVERCLOCKING
+  { {1, 1}, 1620000,  ACPU_SCPLL, 0, 0, 1, 0x1E, L2(22), 1275000, 0x03006000},
+  { {1, 1}, 1674000,  ACPU_SCPLL, 0, 0, 1, 0x1F, L2(22), 1287500, 0x03006000},
+  { {1, 1}, 1728000,  ACPU_SCPLL, 0, 0, 1, 0x20, L2(22), 1300000, 0x03006000},
+#endif
   { {0, 0}, 0 },
 };
 /* acpu_freq_tbl row to use when reconfiguring SC/L2 PLLs. */
@@ -644,16 +680,6 @@ out:
 	return rc;
 }
 
-#ifdef CONFIG_PERFLOCK
-unsigned int get_max_cpu_freq(void)
-{
-	struct clkctl_acpu_speed *f;
-	for (f = acpu_freq_tbl; f->acpuclk_khz != 0; f++) {}
-	f--;
-	return f->acpuclk_khz;;
-}
-#endif
-
 #ifdef CONFIG_CPU_VOLTAGE_TABLE
 
 ssize_t acpuclk_get_vdd_levels_str(char *buf) {
@@ -720,7 +746,7 @@ static void __init scpll_init(int sc_pll)
 	 * might not use the full range of calibrated frequencies, but this
 	 * simplifies changes required for future increases in max CPU freq.
 	 */
-	regval = (L_VAL_SCPLL_CAL_MAX << 24) | (L_VAL_SCPLL_CAL_MIN << 16);
+	regval = (L_VAL_SCPLL_CAL_MAX << 29) | (L_VAL_SCPLL_CAL_MIN << 16);
 	writel(regval, sc_pll_base[sc_pll] + SCPLL_CAL_OFFSET);
 
 	/* Start calibration */
@@ -819,7 +845,7 @@ static void __init bus_init(void)
 }
 
 #ifdef CONFIG_CPU_FREQ_MSM
-static struct cpufreq_frequency_table freq_table[NR_CPUS][20];
+static struct cpufreq_frequency_table freq_table[NR_CPUS][FREQ_TABLE_SIZE];
 
 static void __init cpufreq_table_init(void)
 {
@@ -868,7 +894,11 @@ static unsigned int __init select_freq_plan(void)
 	if (speed_bin == 0xF)
 		speed_bin = (raw_speed_bin >> 4) & 0xF;
 	if (speed_bin == 0x1)
+#ifdef CONFIG_CPU_OVERCLOCKING
+		max_khz = 1728000;
+#else
 		max_khz = 1512000;
+#endif
 	else
 		max_khz = 1188000;
 
