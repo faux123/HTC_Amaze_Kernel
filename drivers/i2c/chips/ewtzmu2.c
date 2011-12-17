@@ -639,8 +639,8 @@ static int EWTZMU2_Report_Value(void)
     {
 	report_times++;
 	if (report_times > ((200 - (Gyro_samplerate_status*50)) / (1 + Gyro_samplerate_status))) {
-		I("a_status : gsensor data: %d, %d, %d\n", ewtzmumid_data.na.x,
-			-ewtzmumid_data.na.z, ewtzmumid_data.na.y);
+		//I("a_status : gsensor data: %d, %d, %d\n", ewtzmumid_data.na.x,
+		//	-ewtzmumid_data.na.z, ewtzmumid_data.na.y);
 		report_times = 0;
 	}
 	input_report_abs(data->input_dev_compass, ABS_X, ewtzmumid_data.na.x);/* x-axis raw acceleration */

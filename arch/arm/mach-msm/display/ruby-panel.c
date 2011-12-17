@@ -417,7 +417,7 @@ static unsigned char ruby_shrink_pwm(int val)
 	} else if (val > BRI_SETTING_MAX)
 			shrink_br = PWM_MAX;
 
-	PR_DISP_DEBUG("brightness orig=%d, transformed=%d\n", val, shrink_br);
+	//PR_DISP_DEBUG("brightness orig=%d, transformed=%d\n", val, shrink_br);
 
 	return shrink_br;
 }
