@@ -680,6 +680,17 @@ out:
 	return rc;
 }
 
+#ifdef CONFIG_PERFLOCK
+unsigned int get_max_cpu_freq(void)
+{
+	struct clkctl_acpu_speed *f;
+
+	for (f = acpu_freq_tbl; f->acpuclk_khz != 0; f++) {}
+	f--;
+	return f->acpuclk_khz;
+}
+#endif
+
 #ifdef CONFIG_CPU_VOLTAGE_TABLE
 
 ssize_t acpuclk_get_vdd_levels_str(char *buf) {

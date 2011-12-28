@@ -198,6 +198,10 @@ extern int panel_type;
 
 #define MSM_SHARED_RAM_PHYS 0x40000000
 
+#ifdef CONFIG_PERFLOCK
+#include <mach/perflock.h>
+#endif
+
 /*
  * The UI_INTx_N lines are pmic gpio lines which connect i2c
  * gpio expanders to the pm8058.
@@ -216,6 +220,10 @@ extern int panel_type;
 #ifdef CONFIG_FB_MSM_HDMI_MHL
 extern void sii9234_change_usb_owner(bool bMHL);
 #endif //CONFIG_FB_MSM_HDMI_MHL
+
+#ifdef CONFIG_PERFLOCK
+extern unsigned int get_max_cpu_freq(void);
+#endif
 
 #ifdef CONFIG_MMC_MSM_SDC2_SUPPORT
 static void (*sdc2_status_notify_cb)(int card_present, void *dev_id);
@@ -349,6 +357,28 @@ static struct msm_spm_platform_data msm_spm_data[] __initdata = {
 
 static struct msm_acpu_clock_platform_data msm8x60_acpu_clock_data = {
 };
+
+#ifdef CONFIG_PERFLOCK
+static unsigned ruby_perf_acpu_table_1188k[] = {
+	384000000,
+	756000000,
+	1188000000,
+};
+
+static unsigned ruby_perf_acpu_table_1512k[] = {
+#ifdef CONFIG_CPU_OVERCLOCK
+	756000000,
+	1242000000,
+	1728000000,
+#else
+	594000000,
+	1080000000,
+	1566000000,
+#endif
+};
+
+static struct perflock_platform_data ruby_perflock_data;
+#endif
 
 static struct regulator_consumer_supply saw_s0_supply =
 	REGULATOR_SUPPLY("8901_s0", NULL);
@@ -5793,6 +5823,18 @@ static void __init ruby_init(void)
 	platform_add_devices(early_devices, ARRAY_SIZE(early_devices));
 	/* CPU frequency control is not supported on simulated targets. */
 	msm_acpu_clock_init(&msm8x60_acpu_clock_data);
+
+#ifdef CONFIG_PERFLOCK
+	if (ruby_perf_acpu_table_1188k[PERF_LOCK_HIGHEST] == get_max_cpu_freq() * 1000 ) {
+		ruby_perflock_data.perf_acpu_table = ruby_perf_acpu_table_1188k;
+		ruby_perflock_data.table_size = ARRAY_SIZE(ruby_perf_acpu_table_1188k);
+	}
+	else {
+		ruby_perflock_data.perf_acpu_table = ruby_perf_acpu_table_1512k;
+		ruby_perflock_data.table_size = ARRAY_SIZE(ruby_perf_acpu_table_1512k);
+	}
+        perflock_init(&ruby_perflock_data);
+#endif
 
 	msm8x60_init_tlmm();
 	msm8x60_init_gpiomux(msm8x60_htc_gpiomux_cfgs);
