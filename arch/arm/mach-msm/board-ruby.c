@@ -2903,75 +2903,18 @@ static struct i2c_board_info pn544_i2c_boardinfo[] __initdata = {
 	},
 };
 
-#ifdef CONFIG_MSM_SDIO_AL
-static uint32_t mdm2ap_gpio_table[] = {
-	GPIO_CFG(RUBY_MDM2AP_STATUS, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA),
-	GPIO_CFG(RUBY_MDM2AP_VDDMIN, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
-	GPIO_CFG(RUBY_AP2MDM_WAKEUP, 0, GPIO_CFG_OUTPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA),
-};
-static int configure_mdm2ap_status(int on)
-{
-	return 0;
-#if 0
-	int ret = 0;
-	if (on)
-		ret = msm_gpiomux_get(RUBY_MDM2AP_STATUS);
-	else
-		ret = msm_gpiomux_put(RUBY_MDM2AP_STATUS);
-
-	if (ret)
-		pr_err("%s: mdm2ap_status config failed, on = %d\n", __func__,
-		       on);
-
-	return ret;
-#endif
-}
-
-
-static int get_mdm2ap_status(void)
-{
-	return gpio_get_value(RUBY_MDM2AP_VDDMIN);
-}
-
-static void trigger_mdm_fatal(void)
-{
-	gpio_set_value(RUBY_AP2MDM_ERRFATAL, 1);
-}
-
-static struct sdio_al_platform_data sdio_al_pdata = {
-	.config_mdm2ap_status = configure_mdm2ap_status,
-	.get_mdm2ap_status = get_mdm2ap_status,
-	.trigger_mdm_fatal = trigger_mdm_fatal,
-	.allow_sdioc_version_major_2 = 0,
-	.peer_sdioc_version_minor = 0x0001,
-	.peer_sdioc_version_major = 0x0003,
-	.peer_sdioc_boot_version_minor = 0x0001,
-	.peer_sdioc_boot_version_major = 0x0003,
-	.mdm2ap_errfatal_gpio = RUBY_MDM2AP_ERRFATAL,
-};
-
-static struct platform_device msm_device_sdio_al = {
-	.name = "msm_sdio_al",
-	.id = -1,
-	.dev		= {
-		.platform_data	= &sdio_al_pdata,
-	},
-};
-#endif /* CONFIG_MSM_SDIO_AL */
-
-static struct resource ram_console_resources[] = {
+static struct resource charm_resources[] = {
 	{
-		.start	= MSM_RAM_CONSOLE_BASE,
-		.end	= MSM_RAM_CONSOLE_BASE + MSM_RAM_CONSOLE_SIZE - 1,
-		.flags	= IORESOURCE_MEM,
+		.start	= MSM_GPIO_TO_INT(RUBY_MDM2AP_ERRFATAL),
+		.end	= MSM_GPIO_TO_INT(RUBY_MDM2AP_ERRFATAL),
+		.flags = IORESOURCE_IRQ,
 	},
-};
-
-static struct platform_device ram_console_device = {
-	.name		= "ram_console",
-	.id		= -1,
-	.num_resources	= ARRAY_SIZE(ram_console_resources),
-	.resource	= ram_console_resources,
+	/* MDM2AP_STATUS */
+	{
+		.start	= MSM_GPIO_TO_INT(RUBY_MDM2AP_STATUS),
+		.end	= MSM_GPIO_TO_INT(RUBY_MDM2AP_STATUS),
+		.flags = IORESOURCE_IRQ,
+	}
 };
 
 static int mdm9k_status;
@@ -3032,20 +2975,6 @@ static void charm_ap_resume(void)
        pr_info("charm_ap resuming...\n");
 }
 
-static struct resource charm_resources[] = {
-	{
-		.start	= MSM_GPIO_TO_INT(RUBY_MDM2AP_ERRFATAL),
-		.end	= MSM_GPIO_TO_INT(RUBY_MDM2AP_ERRFATAL),
-		.flags = IORESOURCE_IRQ,
-	},
-	/* MDM2AP_STATUS */
-	{
-		.start	= MSM_GPIO_TO_INT(RUBY_MDM2AP_STATUS),
-		.end	= MSM_GPIO_TO_INT(RUBY_MDM2AP_STATUS),
-		.flags = IORESOURCE_IRQ,
-	}
-};
-
 static struct charm_platform_data mdm_platform_data = {
 	.charm_modem_on	 = charm_ap2mdm_kpdpwr_on,
 	.charm_modem_off = charm_ap2mdm_kpdpwr_off,
@@ -3078,8 +3007,84 @@ static struct platform_device msm_charm_modem = {
 	},
 };
 
+#ifdef CONFIG_MSM_SDIO_AL
+static uint32_t mdm2ap_gpio_table[] = {
+	GPIO_CFG(RUBY_MDM2AP_STATUS, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA),
+	GPIO_CFG(RUBY_MDM2AP_VDDMIN, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+	GPIO_CFG(RUBY_AP2MDM_WAKEUP, 0, GPIO_CFG_OUTPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA),
+};
+static int configure_mdm2ap_status(int on)
+{
+	return 0;
+#if 0
+	int ret = 0;
+	if (on)
+		ret = msm_gpiomux_get(RUBY_MDM2AP_STATUS);
+	else
+		ret = msm_gpiomux_put(RUBY_MDM2AP_STATUS);
+
+	if (ret)
+		pr_err("%s: mdm2ap_status config failed, on = %d\n", __func__,
+		       on);
+
+	return ret;
+#endif
+}
+
+static int get_mdm2ap_status(void)
+{
+	return gpio_get_value(RUBY_MDM2AP_VDDMIN);
+}
+
+static void trigger_mdm_fatal(void)
+{
+	gpio_set_value(RUBY_AP2MDM_ERRFATAL, 1);
+}
+
+static struct sdio_al_platform_data sdio_al_pdata = {
+	.config_mdm2ap_status = configure_mdm2ap_status,
+	.get_mdm2ap_status = get_mdm2ap_status,
+	.trigger_mdm_fatal = trigger_mdm_fatal,
+	.allow_sdioc_version_major_2 = 0,
+	.peer_sdioc_version_minor = 0x0001,
+	.peer_sdioc_version_major = 0x0003,
+	.peer_sdioc_boot_version_minor = 0x0001,
+	.peer_sdioc_boot_version_major = 0x0003,
+	.mdm2ap_errfatal_gpio = RUBY_MDM2AP_ERRFATAL,
+};
+
+static struct platform_device msm_device_sdio_al = {
+	.name = "msm_sdio_al",
+	.id = -1,
+	.dev		= {
+		.parent = &msm_charm_modem.dev,
+		.platform_data	= &sdio_al_pdata,
+	},
+};
+#endif /* CONFIG_MSM_SDIO_AL */
+
 static struct platform_device *charm_devices[] __initdata = {
 	&msm_charm_modem,
+
+#ifdef CONFIG_MSM_SDIO_AL
+	&msm_device_sdio_al,
+#endif
+
+};
+
+static struct resource ram_console_resources[] = {
+	{
+		.start	= MSM_RAM_CONSOLE_BASE,
+		.end	= MSM_RAM_CONSOLE_BASE + MSM_RAM_CONSOLE_SIZE - 1,
+		.flags	= IORESOURCE_MEM,
+	},
+};
+
+static struct platform_device ram_console_device = {
+	.name		= "ram_console",
+	.id		= -1,
+	.num_resources	= ARRAY_SIZE(ram_console_resources),
+	.resource	= ram_console_resources,
 };
 
 #define GPIOMUX_CFG(f, d, p) {.func = f, .drv = d, .pull = p}
@@ -3265,9 +3270,6 @@ static struct platform_device *surf_devices[] __initdata = {
 	&rpm_vreg_device[RPM_VREG_ID_PM8901_MVS0],
 #endif
 	&cable_detect_device,
-#ifdef CONFIG_MSM_SDIO_AL
-	&msm_device_sdio_al,
-#endif
 
 #ifdef CONFIG_HW_RANDOM_MSM
 	&msm_device_rng,
@@ -3765,6 +3767,7 @@ static struct mfd_cell pm8058_subdevs[] = {
 		.resources = &resources_batt_alarm,
 	},
 #endif
+
 };
 
 #ifdef CONFIG_MSM8X60_SSBI
