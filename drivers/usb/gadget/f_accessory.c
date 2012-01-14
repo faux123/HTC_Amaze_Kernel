@@ -617,6 +617,7 @@ acc_function_unbind(struct usb_configuration *c, struct usb_function *f)
 	_acc_dev = NULL;
 }
 
+#ifdef CONFIG_USB_GADGET_DYNAMIC_ENDPOINT
 static void
 acc_function_release(struct usb_configuration *c, struct usb_function *f)
 {
@@ -637,6 +638,7 @@ acc_function_release(struct usb_configuration *c, struct usb_function *f)
 	dev->online = 0;
 	usb_interface_id_remove(c, 1);
 }
+#endif
 
 static void acc_work(struct work_struct *data)
 {
@@ -794,8 +796,10 @@ static int acc_bind_config(struct usb_configuration *c)
 	dev->function.setup = acc_function_setup;
 	dev->function.set_alt = acc_function_set_alt;
 	dev->function.disable = acc_function_disable;
+#ifdef CONFIG_USB_GADGET_DYNAMIC_ENDPOINT
 	dev->function.release = acc_function_release;
-//	dev->function.dynamic = 1;
+/*	dev->function.dynamic = 1; */
+#endif
 	dev->function.hidden = 1;
 
 	/* _acc_dev must be set before calling usb_gadget_register_driver */

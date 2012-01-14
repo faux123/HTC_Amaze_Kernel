@@ -121,6 +121,13 @@ static inline int qlen(struct usb_gadget *gadget)
 }
 
 /*-------------------------------------------------------------------------*/
+#ifdef CONFIG_USB_ETH_PASS_FW
+static unsigned ipt_cap = 0;
+module_param(ipt_cap, uint, S_IRUGO|S_IWUSR);
+MODULE_PARM_DESC(ipt_cap, "Enable IPT encapsulation");
+#endif
+
+/*-------------------------------------------------------------------------*/
 
 /* REVISIT there must be a better way than having two sets
  * of debug calls ...
@@ -324,7 +331,7 @@ static void rx_complete(struct usb_ep *ep, struct usb_request *req)
 
 #ifdef CONFIG_USB_ETH_PASS_FW
 		//	ipt_dump_packet(skb2->data, skb2->len, 0);
-			ipt_decap_packet(skb2);
+			ipt_decap_packet(skb2, ipt_cap);
 #endif
 
 			skb2->protocol = eth_type_trans(skb2, dev->net);
@@ -557,7 +564,7 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
 #ifdef CONFIG_USB_ETH_PASS_FW
 //	if (skb)
 //		ipt_dump_packet(skb->data, skb->len, 1);
-	if (ipt_encap_packet(skb))
+	if (ipt_encap_packet(skb, ipt_cap))
 		return NETDEV_TX_OK;
 #endif
 
@@ -682,6 +689,7 @@ static int eth_stop(struct net_device *net)
 
 #ifdef CONFIG_USB_ETH_PASS_FW
 	ipt_close();
+    ipt_cap = 0;
 #endif
 
 	VDBG(dev, "%s\n", __func__);

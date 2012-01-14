@@ -288,14 +288,14 @@ struct usb_ep *usb_ep_autoconfig (
 	/* Second, look at endpoints until an unclaimed one looks usable */
 	list_for_each_entry (ep, &gadget->ep_list, ep_list) {
 		if (ep_matches(gadget, ep, desc)) {
-			printk(KERN_INFO "[USB-EP] %s in use\n",
+			printk(KERN_DEBUG "[USB-EP] %s in use\n",
 					ep->name);
 			return ep;
 		}
 	}
 
 	/* Fail */
-	printk( "usb_ep_autoconfig  failed\n");
+	printk(KERN_ERR "[USB-EP] usb_ep_autoconfig failed\n");
 	return NULL;
 }
 
