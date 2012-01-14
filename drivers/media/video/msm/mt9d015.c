@@ -101,7 +101,7 @@ struct mt9d015_ctrl_t {
 
 
 static bool CSI_CONFIG;
-static struct mt9d015_ctrl_t *mt9d015_ctrl;
+static struct mt9d015_ctrl_t *mt9d015_ctrl = NULL;
 static DECLARE_WAIT_QUEUE_HEAD(mt9d015_wait_queue);
 DEFINE_MUTEX(mt9d015_mut);
 
@@ -850,12 +850,15 @@ static int mt9d015_probe_init_sensor(const struct msm_camera_sensor_info *data)
 		goto init_probe_fail;
 	}
 
-	mt9d015_ctrl = kzalloc(sizeof(struct mt9d015_ctrl_t), GFP_KERNEL);
-	if (!mt9d015_ctrl) {
-		pr_info("[CAM] mt9d015_init failed!\n");
-		rc = -ENOMEM;
-		goto init_probe_fail;
+	if (mt9d015_ctrl == NULL) {
+		mt9d015_ctrl = kzalloc(sizeof(struct mt9d015_ctrl_t), GFP_KERNEL);
+		if (!mt9d015_ctrl) {
+			pr_info("[CAM] mt9d015_init failed!\n");
+			rc = -ENOMEM;
+			goto init_probe_fail;
+		}
 	}
+
 	mt9d015_ctrl->fps_divider = 1 * 0x00000400;
 	mt9d015_ctrl->pict_fps_divider = 1 * 0x00000400;
 	mt9d015_ctrl->set_test = TEST_OFF;
@@ -882,11 +885,14 @@ int mt9d015_sensor_open_init(struct msm_camera_sensor_info *data)
 
 	pr_info("[CAM] mt9d015_sensor_open_init\n");
 
-	mt9d015_ctrl = kzalloc(sizeof(struct mt9d015_ctrl_t), GFP_KERNEL);
-	if (!mt9d015_ctrl) {
-		CDBG("mt9d015_init failed!\n");
-		rc = -ENOMEM;
-		goto init_done;
+
+	if (mt9d015_ctrl == NULL) {
+		mt9d015_ctrl = kzalloc(sizeof(struct mt9d015_ctrl_t), GFP_KERNEL);
+		if (!mt9d015_ctrl) {
+			CDBG("mt9d015_init failed!\n");
+			rc = -ENOMEM;
+			goto init_done;
+		}
 	}
 
 	mt9d015_ctrl->fps_divider = 1 * 0x00000400;
