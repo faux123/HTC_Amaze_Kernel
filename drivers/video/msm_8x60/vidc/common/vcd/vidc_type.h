@@ -49,5 +49,7 @@
 #else
 #define PMEM_MEMTYPE   PMEM_MEMTYPE_EBI1
 #endif
-
+/*HTC_START*/
+extern u32 vidc_msg_debug;
+/*HTC_END*/
 #endif

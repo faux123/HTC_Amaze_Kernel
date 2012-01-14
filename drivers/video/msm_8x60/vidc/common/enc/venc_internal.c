@@ -38,11 +38,12 @@
 #include "venc_internal.h"
 #include "vidc_init.h"
 
-#if DEBUG
-#define DBG(x...) printk(KERN_DEBUG x)
-#else
-#define DBG(x...)
-#endif
+/*HTC_START*/
+#define DBG(x...)				\
+	if (vidc_msg_debug) {			\
+		printk(KERN_DEBUG "[VID] " x);	\
+			}
+/*HTC_END*/
 
 #define ERR(x...) printk(KERN_ERR x)
 

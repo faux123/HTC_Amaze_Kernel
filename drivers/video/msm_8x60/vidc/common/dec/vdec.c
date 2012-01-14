@@ -42,12 +42,12 @@
 
 
 
-#if DEBUG
-#define DBG(x...) printk(KERN_DEBUG "[VID] " x)
-#else
-#define DBG(x...)
-#endif
-
+/*HTC_START*/
+#define DBG(x...)				\
+	if (vidc_msg_debug) {			\
+		printk(KERN_DEBUG "[VID] " x);	\
+			}
+/*HTC_END*/
 #define INFO(x...) printk(KERN_INFO "[VID] " x)
 #define ERR(x...) printk(KERN_ERR "[VID] " x)
 
@@ -144,7 +144,6 @@ void vid_dec_vcd_open_done(struct video_client_ctx *client_ctx,
 			   struct vcd_handle_container *handle_container)
 {
 	DBG("vid_dec_vcd_open_done\n");
-
 	if (client_ctx) {
 		if (handle_container)
 			client_ctx->vcd_handle = handle_container->handle;
@@ -1199,9 +1198,10 @@ static u32 vid_dec_msg_pending(struct video_client_ctx *client_ctx)
 				__func__);
 			return client_ctx->stop_msg;
 		}
-	} else
+	/*HTC_START*/
+	} else {
 		DBG("%s(): vid_dec msg queue Not empty\n", __func__);
-
+		} /*HTC_END*/
 	return !islist_empty;
 }
 

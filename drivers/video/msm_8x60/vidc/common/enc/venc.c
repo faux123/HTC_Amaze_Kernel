@@ -42,11 +42,12 @@
 
 #define VID_ENC_NAME	"msm_vidc_enc"
 
-#if DEBUG
-#define DBG(x...) printk(KERN_DEBUG "[VID] " x)
-#else
-#define DBG(x...)
-#endif
+/*HTC_START*/
+#define DBG(x...)				\
+	if (vidc_msg_debug) {			\
+		printk(KERN_DEBUG "[VID] " x);	\
+			}
+/*HTC_END*/
 
 #define INFO(x...) printk(KERN_INFO "[VID] " x)
 #define ERR(x...) printk(KERN_ERR "[VID] " x)
@@ -438,10 +439,11 @@ static u32 vid_enc_msg_pending(struct video_client_ctx *client_ctx)
 				__func__);
 			return client_ctx->stop_msg;
 		}
-	} else
+	/*HTC_START*/
+	} else {
 		DBG("%s(): vid_enc msg queue Not empty\n",
 			__func__);
-
+		} /*HTC_END*/
 	return !islist_empty;
 }
 
@@ -1340,9 +1342,9 @@ static int vid_enc_ioctl(struct inode *inode, struct file *file,
 	case VEN_IOCTL_GET_SEQUENCE_HDR:
 	{
 		struct venc_seqheader seq_header, seq_header_user;
-		/*HTC_START Fix klockwork issue*/
+/*HTC_START (klockwork issue)*/
 		seq_header.hdrlen = 0;
-		/*HTC_END*/
+/*HTC_END*/
 		if (copy_from_user(&venc_msg, arg, sizeof(venc_msg)))
 			return -EFAULT;
 

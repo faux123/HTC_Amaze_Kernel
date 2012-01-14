@@ -1564,9 +1564,9 @@ void vcd_do_client_state_transition(struct vcd_clnt_ctxt *cctxt,
 	if (!cctxt || to_state >= VCD_CLIENT_STATE_MAX) {
 		VCD_MSG_ERROR("Bad parameters. cctxt=%p, to_state=%d",
 			      cctxt, to_state);
-	/*HTC_START Fix klockwork issue*/
+/*HTC_START (klockwork issue)*/
 		return;
-	/*HTC_END*/
+/*HTC_END*/
 	}
 
 	state_ctxt = &cctxt->clnt_state;

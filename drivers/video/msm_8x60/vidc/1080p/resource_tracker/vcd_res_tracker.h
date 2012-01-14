@@ -282,18 +282,18 @@ static struct msm_bus_scale_pdata vidc_bus_client_pdata = {
 
 #endif
 
-#if DEBUG
+extern u32 vidc_msg_debug;
+/*HTC_START*/
+#define VCDRES_MSG_LOW(xx_fmt...)			\
+	if (vidc_msg_debug) {				\
+		printk(KERN_INFO "[VID] * " xx_fmt);	\
+			}
 
-#define VCDRES_MSG_LOW(xx_fmt...)	printk(KERN_INFO "[VID] * " xx_fmt)
-#define VCDRES_MSG_MED(xx_fmt...)	printk(KERN_INFO "[VID] * " xx_fmt)
-
-#else
-
-#define VCDRES_MSG_LOW(xx_fmt...)
-#define VCDRES_MSG_MED(xx_fmt...)
-
-#endif
-
+#define VCDRES_MSG_MED(xx_fmt...)			\
+	if (vidc_msg_debug) {				\
+		printk(KERN_INFO "[VID] * " xx_fmt);	\
+			}
+/*HTC_END*/
 #define VCDRES_MSG_HIGH(xx_fmt...)	printk(KERN_WARNING "[VID] " xx_fmt)
 #define VCDRES_MSG_ERROR(xx_fmt...)	printk(KERN_ERR "[VID] err: " xx_fmt)
 #define VCDRES_MSG_FATAL(xx_fmt...)	printk(KERN_ERR "[VID] <FATAL> " xx_fmt)

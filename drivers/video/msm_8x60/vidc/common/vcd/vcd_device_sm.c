@@ -41,9 +41,9 @@ void vcd_do_device_state_transition(struct vcd_drv_ctxt *drv_ctxt,
 	if (!drv_ctxt || to_state >= VCD_DEVICE_STATE_MAX) {
 		VCD_MSG_ERROR("Bad parameters. drv_ctxt=%p, to_state=%d",
 				  drv_ctxt, to_state);
-	/*HTC_START Fix klockwork issue*/
+/*HTC_START (klockwork issue)*/
 		return;
-	/*HTC_END*/
+/*HTC_END*/
 	}
 
 	state_ctxt = &drv_ctxt->dev_state;
@@ -324,9 +324,10 @@ u32 vcd_reset_device_context(struct vcd_drv_ctxt *drv_ctxt,
 	rc = vcd_power_event(&drv_ctxt->dev_ctxt, NULL,
 						 VCD_EVT_PWR_DEV_TERM_BEGIN);
 	VCD_FAILED_RETURN(rc, "VCD_EVT_PWR_DEV_TERM_BEGIN failed");
-	if (ddl_reset_hw(0))
+	/*HTC_START*/
+	if (ddl_reset_hw(0)) {
 		VCD_MSG_HIGH("HW Reset done");
-	else
+	} else /*HTC_END*/
 		VCD_MSG_FATAL("HW Reset failed");
 
 	(void)vcd_power_event(dev_ctxt, NULL, VCD_EVT_PWR_DEV_TERM_END);

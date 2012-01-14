@@ -51,6 +51,7 @@ static void ddl_sys_init_done_callback(struct ddl_context *ddl_context,
 	u32 fw_size)
 {
 	u32 vcd_status = VCD_S_SUCCESS;
+	u8 *fw_ver;
 
 	DDL_MSG_MED("ddl_sys_init_done_callback");
 	if (!DDLCOMMAND_STATE_IS(ddl_context, DDL_CMD_DMA_INIT)) {
@@ -59,6 +60,9 @@ static void ddl_sys_init_done_callback(struct ddl_context *ddl_context,
 		ddl_context->cmd_state = DDL_CMD_INVALID;
 		DDL_MSG_LOW("SYS_INIT_DONE");
 		vidc_1080p_get_fw_version(&ddl_context->fw_version);
+		fw_ver = (u8 *)&ddl_context->fw_version;
+		DDL_MSG_HIGH("fw_version %x:%x:20%x",
+			fw_ver[1]&0xFF, fw_ver[0]&0xFF, fw_ver[2]&0xFF);
 		if (ddl_context->fw_memory_size >= fw_size) {
 			ddl_context->device_state = DDL_DEVICE_INITED;
 			vcd_status = VCD_S_SUCCESS;
@@ -238,7 +242,7 @@ static u32 ddl_decoder_seq_done_callback(struct ddl_context *ddl_context,
 	struct vidc_1080p_seq_hdr_info seq_hdr_info;
 	u32 process_further = true;
 	struct ddl_profile_info_type disp_profile_info;
-	/*HTC_START Fix klockwork issue*/
+/*HTC_START  (Klockwork issue)*/
 	seq_hdr_info.profile = 0;
 	seq_hdr_info.level = 0;
 /*HTC_END*/

@@ -31,19 +31,22 @@
 #include "vidc_type.h"
 #include "vcd_api.h"
 
-#if DEBUG
+/*HTC_START*/
+#define VCD_MSG_LOW(xx_fmt...)				\
+	if (vidc_msg_debug) {				\
+		printk(KERN_INFO "\n\t* " xx_fmt);	\
+			}
 
-#define VCD_MSG_LOW(xx_fmt...)		printk(KERN_INFO "\n\t* " xx_fmt)
-#define VCD_MSG_MED(xx_fmt...)		printk(KERN_INFO "\n  * " xx_fmt)
-#define VCD_MSG_HIGH(xx_fmt...)		printk(KERN_WARNING "\n" xx_fmt)
+#define VCD_MSG_MED(xx_fmt...)				\
+	if (vidc_msg_debug) {				\
+		printk(KERN_INFO "\n  * " xx_fmt);	\
+			}
 
-#else
-
-#define VCD_MSG_LOW(xx_fmt...)
-#define VCD_MSG_MED(xx_fmt...)
-#define VCD_MSG_HIGH(xx_fmt...)
-
-#endif
+#define VCD_MSG_HIGH(xx_fmt...)				\
+	if (vidc_msg_debug) {				\
+		printk(KERN_WARNING "\n" xx_fmt);	\
+			}
+/*HTC_END*/
 
 #define VCD_MSG_ERROR(xx_fmt...)	printk(KERN_ERR "\n err: " xx_fmt)
 #define VCD_MSG_FATAL(xx_fmt...)	printk(KERN_ERR "\n<FATAL> " xx_fmt)

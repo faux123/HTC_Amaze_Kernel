@@ -41,13 +41,12 @@
 #include "vidc_init_internal.h"
 #include "vidc_init.h"
 #include "vcd_res_tracker_api.h"
-
-#if DEBUG
-#define DBG(x...) printk(KERN_DEBUG "[VID] " x)
-#else
-#define DBG(x...)
-#endif
-
+/*HTC_START*/
+#define DBG(x...)				\
+	if (vidc_msg_debug) {			\
+		printk(KERN_DEBUG "[VID] " x);	\
+			}
+/*HTC_END*/
 #define VIDC_NAME "msm_vidc_reg"
 
 #define ERR(x...) printk(KERN_ERR "[VID] " x)
@@ -67,9 +66,9 @@ struct workqueue_struct *vidc_wq;
 struct workqueue_struct *vidc_timer_wq;
 static irqreturn_t vidc_isr(int irq, void *dev);
 static spinlock_t vidc_spin_lock;
-
-u32 vidc_msg_timing, vidc_msg_pmem;
-
+					/*HTC_START*/
+u32 vidc_msg_timing, vidc_msg_pmem, vidc_msg_debug, vidc_msg_register;
+					/*HTC_END*/
 #ifdef VIDC_ENABLE_DBGFS
 struct dentry *vidc_debugfs_root;
 
@@ -137,8 +136,10 @@ static void vidc_work_handler(struct work_struct *work)
 static DECLARE_WORK(vidc_work, vidc_work_handler);
 
 static int __devinit vidc_720p_probe(struct platform_device *pdev)
-{	/*HTC_START Fix klockwork issue*/
+{
+/*HTC_START (klockwork issue)*/
 	struct resource *pResource;
+/*HTC_END*/
 	DBG("Enter %s()\n", __func__);
 
 	if (pdev->id) {
@@ -154,14 +155,14 @@ static int __devinit vidc_720p_probe(struct platform_device *pdev)
 
 	pResource = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (unlikely(!pResource)) {
-		ERR("%s(): Invalid resource\n", __func__);
+		ERR("%s(): Invalid pResource\n", __func__);
 		return -ENXIO;
 	}
 
 	vidc_device_p->phys_base = pResource->start;
 	vidc_device_p->virt_base = ioremap(pResource->start,
 	pResource->end - pResource->start + 1);
-	/*HTC_END*/
+
 	if (!vidc_device_p->virt_base) {
 		ERR("%s() : ioremap failed\n", __func__);
 		return -ENOMEM;
@@ -316,6 +317,12 @@ static int __init vidc_init(void)
 				(u32 *) &vidc_msg_timing);
 		vidc_debugfs_file_create(root, "vidc_msg_pmem",
 				(u32 *) &vidc_msg_pmem);
+		/*HTC_START*/
+		vidc_debugfs_file_create(root, "vidc_msg_debug",
+				(u32 *) &vidc_msg_debug);
+		vidc_debugfs_file_create(root, "vidc_msg_register",
+				(u32 *) &vidc_msg_register);
+		/*HTC_END*/
 	}
 #endif
 	return 0;
@@ -423,26 +430,28 @@ u32 vidc_lookup_addr_table(struct video_client_ctx *client_ctx,
 		*pmem_fd = buf_addr_table[i].pmem_fd;
 		*file = buf_addr_table[i].file;
 		*buffer_index = i;
-
-		if (search_with_user_vaddr)
+					/*HTC_START*/
+		if (search_with_user_vaddr) {
 			DBG("kernel_vaddr = 0x%08lx, phy_addr = 0x%08lx "
 			" pmem_fd = %d, struct *file	= %p "
 			"buffer_index = %d\n", *kernel_vaddr,
 			*phy_addr, *pmem_fd, *file, *buffer_index);
-		else
+		} else {
 			DBG("user_vaddr = 0x%08lx, phy_addr = 0x%08lx "
 			" pmem_fd = %d, struct *file	= %p "
 			"buffer_index = %d\n", *user_vaddr, *phy_addr,
 			*pmem_fd, *file, *buffer_index);
+			}		/*HTC_END*/
 		return true;
-	} else {
-		if (search_with_user_vaddr)
+	} else {			/*HTC_START*/
+		if (search_with_user_vaddr) {
 			DBG("%s() : client_ctx = %p user_virt_addr = 0x%08lx"
 			" Not Found.\n", __func__, client_ctx, *user_vaddr);
-		else
+		} else {
 			DBG("%s() : client_ctx = %p kernel_virt_addr = 0x%08lx"
 			" Not Found.\n", __func__, client_ctx,
 			*kernel_vaddr);
+			}		/*HTC_END*/
 		return false;
 	}
 }
