@@ -350,9 +350,12 @@ void ruby_rx_amp_enable(int en)
 		atomic_set(&aic3254_ctl, 1);
 		pr_aud_info("%s: curr_rx_mode 0x%x, en %d\n",
 			__func__, curr_rx_mode, en);
-		if (curr_rx_mode & BIT_SPEAKER)
+		if ((curr_rx_mode & BIT_SPEAKER) &&
+		    (curr_rx_mode & BIT_HEADSET))
+			ruby_snddev_hs_spk_pamp_on(en);
+		else if (curr_rx_mode & BIT_SPEAKER)
 			ruby_snddev_poweramp_on(en);
-		if (curr_rx_mode & BIT_HEADSET)
+		else if (curr_rx_mode & BIT_HEADSET)
 			ruby_snddev_hsed_pamp_on(en);
 		if (curr_rx_mode & BIT_RECEIVER)
 			ruby_snddev_receiver_pamp_on(en);

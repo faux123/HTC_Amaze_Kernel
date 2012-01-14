@@ -1927,7 +1927,7 @@ static struct platform_device android_pmem_device = {
 static struct android_pmem_platform_data android_pmem_adsp_pdata = {
 	.name = "pmem_adsp",
 	.allocator_type = PMEM_ALLOCATORTYPE_BITMAP,
-	.cached = 0,
+	.cached = 1,
 };
 
 static struct platform_device android_pmem_adsp_device = {
@@ -1991,7 +1991,7 @@ void *pmem_setup_smi_region(void)
 static struct android_pmem_platform_data android_pmem_smipool_pdata = {
 	.name = "pmem_smipool",
 	.allocator_type = PMEM_ALLOCATORTYPE_BITMAP,
-	.cached = 0,
+	.cached = 1,
 	.request_region = pmem_request_smi_region,
 	.release_region = pmem_release_smi_region,
 	.setup_region = pmem_setup_smi_region,
