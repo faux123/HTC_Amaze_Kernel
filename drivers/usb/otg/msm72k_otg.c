@@ -721,7 +721,7 @@ static int msm_otg_suspend(struct msm_otg *dev)
 		}
 	}
 
-	writel(readl(USB_USBCMD) | ASYNC_INTR_CTRL | ULPI_STP_CTRL, USB_USBCMD);
+	writel(readl(USB_USBCMD) /*| ASYNC_INTR_CTRL*/ | ULPI_STP_CTRL, USB_USBCMD);
 	/* Ensure that above operation is completed before turning off clocks */
 	dsb();
 
@@ -807,7 +807,6 @@ static int msm_otg_resume(struct msm_otg *dev)
 		clk_enable(dev->hs_cclk);
 
 	temp = readl(USB_USBCMD);
-	temp &= ~ASYNC_INTR_CTRL;
 	temp &= ~ULPI_STP_CTRL;
 	writel(temp, USB_USBCMD);
 
@@ -1840,6 +1839,8 @@ static void msm_otg_sm_work(struct work_struct *w)
 #endif
 			/* Workaround: Reset PHY in SE1 state */
 			USBH_DEBUG("entering into lpm with wall-charger\n");
+
+			otg_reset(&dev->otg, 1);
 			msm_otg_put_suspend(dev);
 			/* Allow idle power collapse */
 			otg_pm_qos_update_latency(dev, 0);
