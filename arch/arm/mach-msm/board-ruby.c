@@ -5768,6 +5768,9 @@ uint32_t __initdata regulator_lpm_set[] =
 	PM8901_LPM_SET(PM8901_L3) | PM8901_LPM_SET(PM8901_L4),
 };
 
+#ifdef CONFIG_CPU_FREQ_GOV_ONDEMAND_2_PHASE
+int set_two_phase_freq(int cpufreq);
+#endif
 
 static void __init ruby_init(void)
 {
@@ -5822,6 +5825,10 @@ static void __init ruby_init(void)
 	 * to get the platform data for fabrics.
 	 */
 	msm8x60_init_buses();
+
+#ifdef CONFIG_CPU_FREQ_GOV_ONDEMAND_2_PHASE
+	set_two_phase_freq(1188000);
+#endif
 
 	platform_add_devices(early_devices, ARRAY_SIZE(early_devices));
 	/* CPU frequency control is not supported on simulated targets. */
