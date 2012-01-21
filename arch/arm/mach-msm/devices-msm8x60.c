@@ -515,6 +515,15 @@ static struct msm_bus_vectors grp3d_init_vectors[] = {
 	},
 };
 
+static struct msm_bus_vectors grp3d_low_vectors[] = {
+	{
+		.src = MSM_BUS_MASTER_GRAPHICS_3D,
+		.dst = MSM_BUS_SLAVE_EBI_CH0,
+		.ab = 0,
+		.ib = 990000000U,
+	},
+};
+
 static struct msm_bus_vectors grp3d_nominal_low_vectors[] = {
 	{
 		.src = MSM_BUS_MASTER_GRAPHICS_3D,
@@ -547,6 +556,10 @@ static struct msm_bus_paths grp3d_bus_scale_usecases[] = {
 	{
 		ARRAY_SIZE(grp3d_init_vectors),
 		grp3d_init_vectors,
+	},
+	{
+		ARRAY_SIZE(grp3d_low_vectors),
+		grp3d_low_vectors,
 	},
 	{
 		ARRAY_SIZE(grp3d_nominal_low_vectors),
@@ -674,12 +687,16 @@ static struct kgsl_device_platform_data kgsl_3d0_pdata = {
 				.bus_freq = 1,
 			},
 			{
+				.gpu_freq = 177778000,
+				.bus_freq = 1
+			},
+			{
 				.gpu_freq = 27000000,
 				.bus_freq = 0,
 			},
 		},
 		.init_level = 0,
-		.num_levels = 4,
+		.num_levels = 5,
 		.set_grp_async = NULL,
 		.idle_timeout = HZ/5,
 #ifdef CONFIG_MSM_BUS_SCALING
