@@ -153,7 +153,6 @@ static int ti_st_open(struct hci_dev *hdev)
 	unsigned long timeleft;
 	struct ti_st *hst;
 	int err, i;
-
 	BT_DBG("%s %p", hdev->name, hdev);
 
 	if (test_and_set_bit(HCI_RUNNING, &hdev->flags))
@@ -176,7 +175,6 @@ static int ti_st_open(struct hci_dev *hdev)
 		 * function whenever it called from ST driver.
 		 */
 		hst->reg_status = -EINPROGRESS;
-
 		err = st_register(&ti_st_proto[i]);
 		if (!err)
 			goto done;
@@ -218,6 +216,7 @@ done:
 			BT_ERR("undefined ST write function");
 			clear_bit(HCI_RUNNING, &hdev->flags);
 			for (i = 0; i < MAX_BT_CHNL_IDS; i++) {
+				BT_DBG("In btwilink ti_st_open:: st_unregister");
 				/* Undo registration with ST */
 				err = st_unregister(&ti_st_proto[i]);
 				if (err)
@@ -237,6 +236,7 @@ static int ti_st_close(struct hci_dev *hdev)
 	int err, i;
 	struct ti_st *hst = hdev->driver_data;
 
+	pr_info("[BT]btwilink ti_st_close");
 	if (!test_and_clear_bit(HCI_RUNNING, &hdev->flags))
 		return 0;
 
