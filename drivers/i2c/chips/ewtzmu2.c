@@ -37,12 +37,19 @@
 #endif
 
 int debug_flag;
+/*
 #define D(x...) printk(KERN_DEBUG "[GYRO][PANASONIC] " x)
 #define I(x...) printk(KERN_INFO "[GYRO][PANASONIC] " x)
 #define E(x...) printk(KERN_ERR "[GYRO][PANASONIC ERROR] " x)
 #define DIF(x...) { \
 	if (debug_flag) \
 		printk(KERN_DEBUG "[GYRO][PANASONIC DEBUG] " x); }
+*/
+
+#define D(x...) 
+#define I(x...) 
+#define E(x...) 
+#define DIF(x...) 
 
 #define EWTZMU_DRV_NAME         "ewtzmu2"
 #define DRIVER_VERSION          "1.0.0.2"
