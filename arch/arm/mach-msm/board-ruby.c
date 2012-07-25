@@ -4472,8 +4472,8 @@ static struct pm8058_led_config pm_led_config[] = {
 		.start_index = 0,
 		.duites_size = 8,
 		.duty_time_ms = 32,
-		.lut_flag = PM_PWM_LUT_RAMP_UP | PM_PWM_LUT_PAUSE_HI_EN,
-		.out_current = 40,
+		.lut_flag = PM_PWM_LUT_RAMP_UP | PM_PWM_LUT_PAUSE_HI_EN | PM8058_LED_DYNAMIC_BRIGHTNESS_EN,
+		.out_current = 25,
 	},
 	{
 		.name = "amber",
