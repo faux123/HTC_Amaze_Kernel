@@ -7562,8 +7562,8 @@ config_gpio_table(gyro_ID_PIN_input_table, ARRAY_SIZE(gyro_ID_PIN_input_table));
 	regulator_enable(margin_power);
 	regulator_put(margin_power);
 
-	htc_monitor_init();
-	htc_PM_monitor_init();
+	//htc_monitor_init();
+	//htc_PM_monitor_init();
 
 	config_misc_gpios();
 }
