@@ -600,8 +600,9 @@ static int acpuclk_8x60_set_rate(int cpu, unsigned long rate,
 		goto out;
 	}
 
-	if (max_capped && rate > max_capped)
+	if (max_capped && rate >= max_capped) {
 		rate = max_capped;
+	}
 
 	if (reason == SETRATE_CPUFREQ || reason == SETRATE_HOTPLUG)
 		mutex_lock(&drv_state.lock);
@@ -620,6 +621,7 @@ static int acpuclk_8x60_set_rate(int cpu, unsigned long rate,
 		rc = -EINVAL;
 		goto out;
 	}
+	//pr_warn("target speed: %u\n", tgt_s->acpuclk_khz);
 
 	/* AVS needs SAW_VCTL to be intitialized correctly, before enable,
 	 * and is not initialized at acpuclk_init().

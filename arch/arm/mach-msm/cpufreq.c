@@ -30,9 +30,9 @@
 
 #include "acpuclock.h"
 
-unsigned int max_capped;
 /* initialize to a default cap freq */
-static unsigned int screen_off_max_freq = 594000;
+unsigned int max_capped = 0;
+static unsigned int screen_off_max_freq = 432000;
 
 #ifdef CONFIG_SMP
 struct cpufreq_work_struct {
