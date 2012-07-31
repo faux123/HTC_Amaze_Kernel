@@ -305,16 +305,8 @@ obj-$(CONFIG_NETXEN_NIC) += netxen/
 #
 # RMNET
 #
-ifdef CONFIG_ARCH_MSM7X30_SMD
-obj-$(CONFIG_ARCH_MSM7X30_SMD) += 7x30-smd/
-else # Else CONFIG_ARCH_MSM7X30_SMD
 obj-$(CONFIG_MSM_RMNET) += msm_rmnet.o
-ifdef CONFIG_ARCH_MSM8X60
-obj-$(CONFIG_ARCH_MSM8X60_LTE) += 8x60-lte/
-else
 obj-$(CONFIG_MSM_RMNET_SDIO) += msm_rmnet_sdio.o
-endif
-endif # End CONFIG_ARCH_MSM7X30_LTE
 obj-$(CONFIG_MSM_RMNET_BAM) += msm_rmnet_bam.o
 
 obj-$(CONFIG_NIU) += niu.o
