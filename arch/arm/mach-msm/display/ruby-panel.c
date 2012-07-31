@@ -384,13 +384,13 @@ static struct mipi_dsi_platform_data mipi_pdata = {
 	.dsi_power_save   = mipi_panel_power,
 };
 
-#define BRI_SETTING_MIN                 30
-#define BRI_SETTING_DEF                 143
+#define BRI_SETTING_MIN                 20
+#define BRI_SETTING_DEF                 123
 #define BRI_SETTING_MAX                 255
 
-#define PWM_MIN                   9       /* 3.5% of max pwm */
-#define PWM_DEFAULT_AUO           83     /* 32.67% of max pwm */
-#define PWM_DEFAULT_SHARP		  100	/* 39.2% of max pwm */
+#define PWM_MIN                   9	/* 3.5% of max pwm */
+#define PWM_DEFAULT_AUO           73	/* 32.67% of max pwm */
+#define PWM_DEFAULT_SHARP	  90	/* 39.2% of max pwm */
 #define PWM_MAX                   255
 
 #define PWM_DEFAULT	\
@@ -405,10 +405,10 @@ static unsigned char ruby_shrink_pwm(int val)
 	} else if (val > 0 && (val < BRI_SETTING_MIN)) {
 			shrink_br = PWM_MIN;
 	} else if ((val >= BRI_SETTING_MIN) && (val <= BRI_SETTING_DEF)) {
-			shrink_br = (val - 30) * (PWM_DEFAULT - PWM_MIN) /
+			shrink_br = (val - 20) * (PWM_DEFAULT - PWM_MIN) /
 		(BRI_SETTING_DEF - BRI_SETTING_MIN) + PWM_MIN;
 	} else if (val > BRI_SETTING_DEF && val <= BRI_SETTING_MAX) {
-			shrink_br = (val - 143) * (PWM_MAX - PWM_DEFAULT) /
+			shrink_br = (val - 123) * (PWM_MAX - PWM_DEFAULT) /
 		(BRI_SETTING_MAX - BRI_SETTING_DEF) + PWM_DEFAULT;
 	} else if (val > BRI_SETTING_MAX)
 			shrink_br = PWM_MAX;
