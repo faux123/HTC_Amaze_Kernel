@@ -366,8 +366,9 @@ struct apr_svc *apr_register(char *dest, char *svc_name, apr_fn svc_fn,
 	mutex_lock(&q6.lock);
 	if (q6.state == APR_Q6_NOIMG) {
 		q6.pil = pil_get("q6");
-		if (!q6.pil) {
-			pr_aud_err("APR: Unable to load q6 image\n");
+		if (IS_ERR(q6.pil)) {
+			rc = PTR_ERR(q6.pil);
+			pr_err("APR: Unable to load q6 image, error:%d\n", rc);
 			mutex_unlock(&q6.lock);
 			return svc;
 		}
