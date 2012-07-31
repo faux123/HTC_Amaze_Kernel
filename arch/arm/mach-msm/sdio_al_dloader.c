@@ -1,5 +1,4 @@
-
-/* Copyright (c) 2011, Code Aurora Forum. All rights reserved.
+/* Copyright (c) 2011-2012, Code Aurora Forum. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -542,7 +541,7 @@ static void update_gd(int code)
 	curr_index++;
 }
 
-static int __init bootloader_debugfs_init(void)
+static int bootloader_debugfs_init(void)
 {
 	/* /sys/kernel/debug/bootloader there will be dld_arr file */
 	root = debugfs_create_dir("bootloader", NULL);
