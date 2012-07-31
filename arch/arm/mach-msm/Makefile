@@ -296,12 +296,6 @@ obj-$(CONFIG_ARCH_MSMCOPPER) += board-copper.o board-dt.o
 obj-$(CONFIG_ARCH_MSM8960) += devices_htc.o htc_wifi_nvs.o htc_awb_cal.o
 obj-$(CONFIG_ARCH_MSM8X60) += devices_htc.o htc_wifi_nvs.o sysinfo-8x60.o emmc_partitions.o htc_awb_cal.o
 
-ifeq ($(CONFIG_ARCH_MSM8X60_LTE),y)
-obj-$(CONFIG_ARCH_MSM8X60_LTE) += 8x60-lte/
-else
-ifeq ($(CONFIG_ARCH_MSM7X30_SMD),y)
-obj-$(CONFIG_ARCH_MSM7X30_SMD) += 7x30-smd/
-else # Else CONFIG_ARCH_MSM7X30_SMD
 obj-$(CONFIG_MSM_SDIO_AL) += sdio_al.o
 obj-$(CONFIG_MSM_SDIO_AL) += sdio_al_test.o
 obj-$(CONFIG_MSM_SDIO_AL) += sdio_al_dloader.o
@@ -309,8 +303,6 @@ obj-$(CONFIG_MSM_SDIO_DMUX) += sdio_dmux.o
 obj-$(CONFIG_MSM_SDIO_CMUX) += sdio_cmux.o
 obj-$(CONFIG_MSM_SDIO_CTL) += sdio_ctl.o
 obj-$(CONFIG_MSM_SDIO_TTY) += sdio_tty.o
-endif # End CONFIG_ARCH_MSM7X30_SMD
-endif
 
 # MSM8960 boards
 obj-$(CONFIG_MACH_TAHITI) += board-tahiti.o board-tahiti-regulator.o board-tahiti-gpio.o
