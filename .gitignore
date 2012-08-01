@@ -58,9 +58,12 @@ include/config
 include/linux/version.h
 include/generated
 arch/*/include/generated
+arch/arm/boot/compressed/ashldi3.S
+arch/arm/boot/compressed/piggy.xzkern
 
 # stgit generated dirs
 patches-*
+
 
 # quilt's files
 patches
