@@ -27,6 +27,8 @@
 #include <linux/blktrace_api.h>
 #include <linux/jiffies.h>
 
+#include "blk.h"
+
 /*
  * enum row_queue_prio - Priorities of the ROW queues
  *
@@ -49,6 +51,17 @@ enum row_queue_prio {
 
 /* Flags indicating whether idling is enabled on the queue */
 static const bool queue_idling_enabled[] = {
+	true,	/* ROWQ_PRIO_HIGH_READ */
+	true,	/* ROWQ_PRIO_REG_READ */
+	false,	/* ROWQ_PRIO_HIGH_SWRITE */
+	false,	/* ROWQ_PRIO_REG_SWRITE */
+	false,	/* ROWQ_PRIO_REG_WRITE */
+	false,	/* ROWQ_PRIO_LOW_READ */
+	false,	/* ROWQ_PRIO_LOW_SWRITE */
+};
+
+/* Flags indicating whether the queue can notify on urgent requests */
+static const bool urgent_queues[] = {
 	true,	/* ROWQ_PRIO_HIGH_READ */
 	true,	/* ROWQ_PRIO_REG_READ */
 	false,	/* ROWQ_PRIO_HIGH_SWRITE */
@@ -268,7 +281,13 @@ static void row_add_request(struct request_queue *q,
 		rqueue->idle_data.idle_trigger_time =
 			jiffies + msecs_to_jiffies(rd->read_idle.freq);
 	}
-	row_log_rowq(rd, rqueue->prio, "added request");
+	if (urgent_queues[rqueue->prio] &&
+	    row_rowq_unserved(rd, rqueue->prio)) {
+		row_log_rowq(rd, rqueue->prio,
+			     "added urgent req curr_queue = %d",
+			     rd->curr_queue);
+	} else
+		row_log_rowq(rd, rqueue->prio, "added request");
 }
 
 /*
@@ -288,7 +307,12 @@ static int row_reinsert_req(struct request_queue *q,
 	struct row_queue   *rqueue = RQ_ROWQ(rq);
 
 	/* Verify rqueue is legitimate */
-	BUG_ON(rqueue != &rd->row_queues[rqueue->prio].rqueue);
+	if (rqueue->prio >= ROWQ_MAX_PRIO) {
+		pr_err("\n\nROW BUG: row_reinsert_req() rqueue->prio = %d\n",
+			   rqueue->prio);
+		blk_dump_rq_flags(rq, "");
+		return -EIO;
+	}
 
 	list_add(&rq->queuelist, &rqueue->fifo);
 	rd->nr_reqs[rq_data_dir(rq)]++;
@@ -296,6 +320,29 @@ static int row_reinsert_req(struct request_queue *q,
 	row_log_rowq(rd, rqueue->prio, "request reinserted");
 
 	return 0;
+}
+
+/*
+ * row_urgent_pending() - Return TRUE if there is an urgent
+ *			  request on scheduler
+ * @q:	dispatch queue
+ *
+ */
+static bool row_urgent_pending(struct request_queue *q)
+{
+	struct row_data *rd = q->elevator->elevator_data;
+	int i;
+
+	for (i = 0; i < ROWQ_MAX_PRIO; i++)
+		if (urgent_queues[i] && row_rowq_unserved(rd, i) &&
+		    !list_empty(&rd->row_queues[i].rqueue.fifo)) {
+			row_log_rowq(rd, i,
+				     "Urgent request pending (curr=%i)",
+				     rd->curr_queue);
+			return true;
+		}
+
+	return false;
 }
 
 /**
@@ -673,6 +720,7 @@ static struct elevator_type iosched_row = {
 		.elevator_dispatch_fn		= row_dispatch_requests,
 		.elevator_add_req_fn		= row_add_request,
 		.elevator_reinsert_req_fn	= row_reinsert_req,
+		.elevator_is_urgent_fn		= row_urgent_pending,
 		.elevator_former_req_fn		= elv_rb_former_request,
 		.elevator_latter_req_fn		= elv_rb_latter_request,
 		.elevator_set_req_fn		= row_set_request,
