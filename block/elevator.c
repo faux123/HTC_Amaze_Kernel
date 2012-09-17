@@ -925,6 +925,11 @@ void elv_completed_request(struct request_queue *q, struct request *rq)
 {
 	struct elevator_queue *e = q->elevator;
 
+	if (blk_mark_rq_urgent(rq)) {
+		q->notified_urgent = false;
+		q->urgent_req = NULL;
+	}
+	blk_clear_rq_urgent(rq);
 	/*
 	 * request is released from the driver, io must be done
 	 */

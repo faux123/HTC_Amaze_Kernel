@@ -302,7 +302,23 @@ void __blk_run_queue(struct request_queue *q)
 	if (unlikely(blk_queue_stopped(q)))
 		return;
 
-	q->request_fn(q);
+	/*
+	 * Notify the driver of urgent request pending under the folowing
+	 * conditions:
+	 * 1. There isn't already an urgent request in flight, meaning
+	 * previously notified urgent request completed (!q->notified_urgent)
+	 * 2. The driver and the current scheduler support urgent request
+	 * handling
+	 * 3. There is an urgent request pending in the scheduler
+	 */
+	if (!q->notified_urgent &&
+		q->elevator->elevator_type->ops.elevator_is_urgent_fn &&
+	    q->urgent_request_fn &&
+	    q->elevator->elevator_type->ops.elevator_is_urgent_fn(q)) {
+		q->urgent_request_fn(q);
+		q->notified_urgent = true;
+	} else
+		q->request_fn(q);
 }
 EXPORT_SYMBOL(__blk_run_queue);
 
@@ -2033,8 +2049,17 @@ struct request *blk_fetch_request(struct request_queue *q)
 	struct request *rq;
 
 	rq = blk_peek_request(q);
-	if (rq)
+	if (rq) {
+		/*
+		 * Assumption: the next request fetched from scheduler after we
+		 * notified "urgent request pending" - will be the urgent one
+		 */
+		if (q->notified_urgent && !q->urgent_req) {
+			q->urgent_req = rq;
+			(void)blk_mark_rq_urgent(rq);
+		}
 		blk_start_request(rq);
+	}
 	return rq;
 }
 EXPORT_SYMBOL(blk_fetch_request);
