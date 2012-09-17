@@ -272,6 +272,33 @@ static void row_add_request(struct request_queue *q,
 }
 
 /*
+ * row_reinsert_req() - Reinsert request back to the scheduler
+ * @q:	dispatch queue
+ * @rq:	request to add
+ *
+ * Reinsert the given request back to the queue it was
+ * dispatched from as if it was never dispatched.
+ *
+ * Returns 0 on success, error code otherwise
+ */
+static int row_reinsert_req(struct request_queue *q,
+			    struct request *rq)
+{
+	struct row_data    *rd = q->elevator->elevator_data;
+	struct row_queue   *rqueue = RQ_ROWQ(rq);
+
+	/* Verify rqueue is legitimate */
+	BUG_ON(rqueue != &rd->row_queues[rqueue->prio].rqueue);
+
+	list_add(&rq->queuelist, &rqueue->fifo);
+	rd->nr_reqs[rq_data_dir(rq)]++;
+
+	row_log_rowq(rd, rqueue->prio, "request reinserted");
+
+	return 0;
+}
+
+/**
  * row_remove_request() -  Remove given request from scheduler
  * @q:	requests queue
  * @rq:	request to remove
@@ -645,6 +672,7 @@ static struct elevator_type iosched_row = {
 		.elevator_merge_req_fn		= row_merged_requests,
 		.elevator_dispatch_fn		= row_dispatch_requests,
 		.elevator_add_req_fn		= row_add_request,
+		.elevator_reinsert_req_fn	= row_reinsert_req,
 		.elevator_former_req_fn		= elv_rb_former_request,
 		.elevator_latter_req_fn		= elv_rb_latter_request,
 		.elevator_set_req_fn		= row_set_request,
