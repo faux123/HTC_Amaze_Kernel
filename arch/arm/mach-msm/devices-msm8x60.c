@@ -853,6 +853,10 @@ static struct msm_bus_paths grp2d0_bus_scale_usecases[] = {
 		ARRAY_SIZE(grp2d0_max_vectors),
 		grp2d0_max_vectors,
 	},
+	{
+		ARRAY_SIZE(grp2d0_max_vectors),
+		grp2d0_max_vectors,
+	},
 };
 
 static struct msm_bus_scale_pdata grp2d0_bus_scale_pdata = {
@@ -883,6 +887,10 @@ static struct msm_bus_paths grp2d1_bus_scale_usecases[] = {
 	{
 		ARRAY_SIZE(grp2d1_init_vectors),
 		grp2d1_init_vectors,
+	},
+	{
+		ARRAY_SIZE(grp2d1_max_vectors),
+		grp2d1_max_vectors,
 	},
 	{
 		ARRAY_SIZE(grp2d1_max_vectors),
@@ -1034,6 +1042,10 @@ static struct kgsl_device_platform_data kgsl_2d0_pdata = {
 	.pwrlevel = {
 		{
 			.gpu_freq = 200000000,
+			.bus_freq = 2,
+		},
+		{
+			.gpu_freq = 200000000,
 			.bus_freq = 1,
 		},
 		{
@@ -1042,7 +1054,7 @@ static struct kgsl_device_platform_data kgsl_2d0_pdata = {
 		},
 	},
 	.init_level = 0,
-	.num_levels = 2,
+	.num_levels = 3,
 	.set_grp_async = NULL,
 	.idle_timeout = HZ/10,
 	.nap_allowed = true,
@@ -1081,6 +1093,10 @@ static struct kgsl_device_platform_data kgsl_2d1_pdata = {
 	.pwrlevel = {
 		{
 			.gpu_freq = 200000000,
+			.bus_freq = 2,
+		},
+		{
+			.gpu_freq = 200000000,
 			.bus_freq = 1,
 		},
 		{
@@ -1089,7 +1105,7 @@ static struct kgsl_device_platform_data kgsl_2d1_pdata = {
 		},
 	},
 	.init_level = 0,
-	.num_levels = 2,
+	.num_levels = 3,
 	.set_grp_async = NULL,
 	.idle_timeout = HZ/10,
 	.nap_allowed = true,
