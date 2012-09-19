@@ -67,7 +67,7 @@ static void ruby_panel_power(int on)
 			goto fail;
 		}
 
-		ret = regulator_set_voltage(rgl_l19, 3000000, 3000000);
+		ret = regulator_set_voltage(rgl_l19, 2800000, 2800000);
 		if (ret) {
 			PR_DISP_ERR("%s: error setting l19_2v85 voltage\n", __func__);
 			goto fail;
@@ -385,8 +385,8 @@ static struct mipi_dsi_platform_data mipi_pdata = {
 };
 
 #define BRI_SETTING_MIN                 20
-#define BRI_SETTING_DEF                 123
-#define BRI_SETTING_MAX                 255
+#define BRI_SETTING_DEF                 93
+#define BRI_SETTING_MAX                 230
 
 #define PWM_MIN                   9	/* 3.5% of max pwm */
 #define PWM_DEFAULT_AUO           73	/* 32.67% of max pwm */
