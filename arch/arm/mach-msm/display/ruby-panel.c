@@ -67,7 +67,7 @@ static void ruby_panel_power(int on)
 			goto fail;
 		}
 
-		ret = regulator_set_voltage(rgl_l19, 2800000, 2800000);
+		ret = regulator_set_voltage(rgl_l19, 2850000, 2850000);
 		if (ret) {
 			PR_DISP_ERR("%s: error setting l19_2v85 voltage\n", __func__);
 			goto fail;
