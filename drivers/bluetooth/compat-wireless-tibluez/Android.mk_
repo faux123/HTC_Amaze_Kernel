@@ -1,0 +1,77 @@
+LOCAL_PATH:= $(call my-dir)
+
+include $(CLEAR_VARS)
+
+
+
+ti_bt_ko_names := \
+ bluetooth.ko \
+ bnep.ko \
+ hidp.ko \
+ rfcomm.ko \
+ btwilink.ko 
+
+ti_bt_ko_install_path := $(PRODUCT_OUT)/system/lib/ti-bluez-ko
+
+ti_bt_ko_modules :=  $(patsubst %.ko,$(LOCAL_PATH)/kos/%.ko,$(ti_bt_ko_names))
+
+tib_bt_ko_unstripped := $(patsubst %.ko,$(TARGET_ROOT_OUT_UNSTRIPPED)/%.ko,$(ti_bt_ko_names))
+
+tib_bt_ko_stripped := $(patsubst %.ko,$(ti_bt_ko_install_path)/%.ko,$(ti_bt_ko_names))
+
+#tib_bt_src := $(shell find $(LOCAL_PATH)/net -name "*.c") $(shell find $(LOCAL_PATH)/net -name "*.h")
+
+TI_COMAPAT_WL_LOCAL_PATH := $(LOCAL_PATH)
+
+LOCAL_MODULE := ti_bluetooth_ko
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(PRODUCT_OUT)
+LOCAL_UNSTRIPPED_PATH := $(PRODUCT_OUT)
+
+
+$(info LOCAL_MODULE_PATH=$(LOCAL_MODULE_PATH) )
+$(info LOCAL_MODULE_PATH=$(LOCAL_MODULE_PATH) )
+$(info LOCAL_UNSTRIPPED_PATH=$(LOCAL_UNSTRIPPED_PATH) )
+$(info TI_COMAPAT_WL_LOCAL_PATH=$(TI_COMAPAT_WL_LOCAL_PATH) )
+$(info TI_COMPAT_ARGS=$(TI_COMPAT_ARGS) )
+
+ifneq ($(strip $(TI_COMPAT_ARGS)),)
+stam := $(shell rm -f $(TI_COMAPAT_WL_LOCAL_PATH)/.ticompat-make )
+endif
+
+$(ti_bt_ko_install_path)/%.ko: $(TARGET_ROOT_OUT_UNSTRIPPED)/%.ko
+	@echo "$@ -- $?"
+	mkdir -p $(ti_bt_ko_install_path)
+	cp $< $@
+
+$(TARGET_ROOT_OUT_UNSTRIPPED)/%.ko: $(TI_COMAPAT_WL_LOCAL_PATH)/kos/%.ko
+	@echo "$@ -- $?"
+	mkdir -p $(TARGET_ROOT_OUT_UNSTRIPPED)
+	cp $< $@
+
+$(TI_COMAPAT_WL_LOCAL_PATH)/kos/%.ko: $(TI_COMAPAT_WL_LOCAL_PATH)/.ticompat-make
+	@echo "$@ -- $?"
+
+$(TI_COMAPAT_WL_LOCAL_PATH)/.ticompat-make:
+	@echo "$@ -- $?"
+	touch $(TI_COMAPAT_WL_LOCAL_PATH)/.ticompat-make
+	cd $(TI_COMAPAT_WL_LOCAL_PATH); \
+	./tibluez.sh $(TI_COMPAT_ARGS); \
+	if [ -n "$(TI_COMPAT_ARGS)" ]; then rm -f $(TI_COMAPAT_WL_LOCAL_PATH)/.ticompat-make; fi
+	
+
+
+ifneq ($(strip $(LOCAL_SRC_FILES)),)
+$(error LOCAL_SRC_FILES are not allowed for phony packages)
+endif
+
+LOCAL_MODULE_CLASS := FAKE
+LOCAL_MODULE_SUFFIX := -timestamp
+
+include $(BUILD_SYSTEM)/base_rules.mk
+
+$(LOCAL_BUILT_MODULE): $(tib_bt_ko_stripped)
+	$(hide) echo "Fake: $@"
+	$(hide) mkdir -p $(dir $@)
+	$(hide) touch $@
+
