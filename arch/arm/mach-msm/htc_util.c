@@ -214,9 +214,11 @@ void htc_PM_monitor_work(struct work_struct *work)
 	htc_idle_stat_show(HTC_PM_STATSTIC_DELAY);
 	htc_idle_stat_clear();
 	htc_MPSS_LPASS_stat_show();
+#ifdef CONFIG_DEBUG_KERNEL
 	htc_timer_stats_OnOff('0');
 	htc_timer_stats_show(300);/*Show timer events which greater than 300 every 10 sec*/
 	htc_timer_stats_OnOff('1');
+#endif
 	htc_print_active_perf_locks();
 	htc_print_active_wake_locks(WAKE_LOCK_IDLE);
 	htc_print_active_wake_locks(WAKE_LOCK_SUSPEND);
