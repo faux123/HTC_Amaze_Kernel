@@ -82,3 +82,9 @@ GTAGS
 *.orig
 *~
 \#*#
+
+# user excludes
+mkzip.sh
+out/
+drivers/bluetooth/compat-wireless-tibluez/include/linux/compat_autoconf.h
+drivers/net/wireless/compat-wireless-r5.00.09_ed_ccx/include/linux/compat_autoconf.h
